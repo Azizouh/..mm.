@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أداة تعديل APK روبلوكس الشاملة</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #38bdf8;
+            --accent-hover: #0284c7;
+            --text-color: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --success-color: #22c55e;
+            --warning-color: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 520px;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            border: 1px solid var(--border-color);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            color: var(--accent-color);
+            font-size: 22px;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .step-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 15px;
+        }
+
+        .step-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            margin-top: 8px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .custom-file-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #1e293b;
+            border: 1px dashed var(--accent-color);
+            color: var(--text-color);
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            text-align: center;
+            width: 100%;
+        }
+
+        .custom-file-btn:hover {
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        .file-name {
+            font-size: 12px;
+            color: var(--success-color);
+            margin-top: 6px;
+            word-break: break-all;
+        }
+
+        .preview-box {
+            margin-top: 10px;
+            display: none;
+            background: #090d16;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .preview-box img {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 6px;
+            object-fit: contain;
+        }
+
+        .font-preview-text {
+            font-size: 18px;
+            color: #ffffff;
+            margin-top: 5px;
+        }
+
+        .btn-action {
+            width: 100%;
+            background: var(--accent-color);
+            color: #000;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-action:hover {
+            background: var(--accent-hover);
+            color: #fff;
+        }
+
+        .btn-action:disabled {
+            background: #475569;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .progress-container {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .progress-bar-bg {
+            background: var(--border-color);
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            background: var(--accent-color);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .status-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        .notice-box {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--warning-color);
+            color: var(--warning-color);
+            font-size: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>مُعدل APK روبلوكس الذكي</h1>
+        <p>ارفع ملف الـ APK واختر التعديلات وسيتم استخراج ملف معدل جاهز للتركيب</p>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title">📦 1. اختر ملف Roblox APK الأساسي</div>
+        <div class="file-input-wrapper">
+            <label for="apkInput" class="custom-file-btn" id="apkBtnLabel">اضغط هنا لرفع ملف Roblox.apk</label>
+            <input type="file" id="apkInput" accept=".apk">
+        </div>
+        <div class="file-name" id="apkFileName"></div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title">🎯 2. تغيير الكروسر (Mouse Cursor)</div>
+        <div class="file-input-wrapper">
+            <label for="cursorInput" class="custom-file-btn">اختر صورة الكروسر (PNG)</label>
+            <input type="file" id="cursorInput" accept="image/png">
+        </div>
+        <div class="preview-box" id="cursorPreviewBox">
+            <img id="cursorPreviewImg" src="" alt="معاينة الكروسر">
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title">🌌 3. تغيير السكاي (Skybox)</div>
+        <div class="file-input-wrapper">
+            <label for="skyInput" class="custom-file-btn">اختر صورة السكاي (PNG/JPG)</label>
+            <input type="file" id="skyInput" accept="image/*">
+        </div>
+        <div class="preview-box" id="skyPreviewBox">
+            <img id="skyPreviewImg" src="" alt="معاينة السكاي">
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title">🔤 4. تغيير الخط (Font)</div>
+        <div class="file-input-wrapper">
+            <label for="fontInput" class="custom-file-btn">اختر ملف الخط (TTF/OTF)</label>
+            <input type="file" id="fontInput" accept=".ttf,.otf">
+        </div>
+        <div class="preview-box" id="fontPreviewBox">
+            <div class="font-preview-text" id="fontPreviewText">Roblox 123 - أهلاً بك</div>
+        </div>
+    </div>
+
+    <button class="btn-action" id="processBtn" onclick="processAPK()" disabled>تعديل ملف الـ APK واستخراجه</button>
+
+    <div class="progress-container" id="progressContainer">
+        <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progressBarFill"></div>
+        </div>
+        <div class="status-text" id="statusText">جاري التحضير...</div>
+    </div>
+
+    <div class="notice-box" id="noticeBox">
+        ⚠️ <strong>تنبيه هام:</strong> بعد تنزيل الملف المعدل، يجب توقيعه باستخدام تطبيق <b>APK Signer</b> على جوالك قبل تثبيته حتى لا يظهر خطأ التثبيت.
+    </div>
+</div>
+
+<script>
+    let apkFile = null;
+    let cursorFile = null;
+    let skyFile = null;
+    let fontFile = null;
+
+    document.getElementById('apkInput').addEventListener('change', function(e) {
+        apkFile = e.target.files[0];
+        if (apkFile) {
+            document.getElementById('apkFileName').innerText = 'تم رفع: ' + apkFile.name;
+            document.getElementById('apkBtnLabel').innerText = 'تغيير ملف APK';
+            checkReadyState();
+        }
+    });
+
+    document.getElementById('cursorInput').addEventListener('change', function(e) {
+        cursorFile = e.target.files[0];
+        if (cursorFile) {
+            const url = URL.createObjectURL(cursorFile);
+            document.getElementById('cursorPreviewImg').src = url;
+            document.getElementById('cursorPreviewBox').style.display = 'block';
+            checkReadyState();
+        }
+    });
+
+    document.getElementById('skyInput').addEventListener('change', function(e) {
+        skyFile = e.target.files[0];
+        if (skyFile) {
+            const url = URL.createObjectURL(skyFile);
+            document.getElementById('skyPreviewImg').src = url;
+            document.getElementById('skyPreviewBox').style.display = 'block';
+            checkReadyState();
+        }
+    });
+
+    document.getElementById('fontInput').addEventListener('change', function(e) {
+        fontFile = e.target.files[0];
+        if (fontFile) {
+            const fontName = 'CustomFont_' + Date.now();
+            const fontUrl = URL.createObjectURL(fontFile);
+            const newFont = new FontFace(fontName, `url(${fontUrl})`);
+            
+            newFont.load().then(function(loadedFont) {
+                document.fonts.add(loadedFont);
+                const previewText = document.getElementById('fontPreviewText');
+                previewText.style.fontFamily = fontName;
+                document.getElementById('fontPreviewBox').style.display = 'block';
+            });
+            checkReadyState();
+        }
+    });
+
+    function checkReadyState() {
+        const btn = document.getElementById('processBtn');
+        if (apkFile && (cursorFile || skyFile || fontFile)) {
+            btn.disabled = false;
+        } else {
+            btn.disabled = true;
+        }
+    }
+
+    async function processAPK() {
+        if (!apkFile) return;
+
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBarFill = document.getElementById('progressBarFill');
+        const statusText = document.getElementById('statusText');
+        const processBtn = document.getElementById('processBtn');
+        const noticeBox = document.getElementById('noticeBox');
+
+        processBtn.disabled = true;
+        progressContainer.style.display = 'block';
+        noticeBox.style.display = 'none';
+        
+        try {
+            statusText.innerText = 'جاري قراءة ملف APK...';
+            progressBarFill.style.width = '10%';
+
+            const zip = new JSZip();
+            const loadedZip = await zip.loadAsync(apkFile);
+
+            progressBarFill.style.width = '40%';
+            statusText.innerText = 'جاري استبدال الأصول داخل APK...';
+
+            if (cursorFile) {
+                const cursorData = await cursorFile.arrayBuffer();
+                const cursorPaths = [
+                    "assets/content/textures/Cursors/KeyboardMouse/ArrowCursor.png",
+                    "assets/content/textures/Cursors/KeyboardMouse/ArrowFarCursor.png",
+                    "assets/content/textures/Cursors/KeyboardMouse/IBeamCursor.png"
+                ];
+                cursorPaths.forEach(path => loadedZip.file(path, cursorData));
+            }
+
+            if (skyFile) {
+                const skyData = await skyFile.arrayBuffer();
+                const skyPaths = [
+                    "assets/content/textures/Sky/sky512_bk.tex",
+                    "assets/content/textures/Sky/sky512_dn.tex",
+                    "assets/content/textures/Sky/sky512_ft.tex",
+                    "assets/content/textures/Sky/sky512_lf.tex",
+                    "assets/content/textures/Sky/sky512_rt.tex",
+                    "assets/content/textures/Sky/sky512_up.tex"
+                ];
+                skyPaths.forEach(path => loadedZip.file(path, skyData));
+            }
+
+            if (fontFile) {
+                const fontData = await fontFile.arrayBuffer();
+                const fontPaths = [
+                    "assets/content/fonts/arial.ttf",
+                    "assets/content/fonts/arialbd.ttf",
+                    "assets/content/fonts/SourceSansPro-Regular.ttf",
+                    "assets/content/fonts/SourceSansPro-Bold.ttf"
+                ];
+                fontPaths.forEach(path => loadedZip.file(path, fontData));
+            }
+
+            progressBarFill.style.width = '70%';
+            statusText.innerText = 'جاري ضغط وإعادة بناء APK...';
+
+            const outputBlob = await loadedZip.generateAsync({
+                type: "blob",
+                compression: "DEFLATE",
+                compressionOptions: { level: 6 }
+            }, function updateCallback(metadata) {
+                const percent = Math.floor(70 + (metadata.percent * 0.3));
+                progressBarFill.style.width = percent + '%';
+            });
+
+            progressBarFill.style.width = '100%';
+            statusText.innerText = 'تم التعديل بنجاح!';
+
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(outputBlob);
+            a.download = "Roblox_Customized.apk";
+            a.click();
+
+            setTimeout(() => {
+                processBtn.disabled = false;
+                noticeBox.style.display = 'block';
+            }, 1000);
+
+        } catch (err) {
+            console.error(err);
+            statusText.innerText = 'حدث خطأ: ' + err.message;
+            processBtn.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>
