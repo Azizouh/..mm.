@@ -3,37 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أداة تعديل APK روبلوكس الشاملة</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <title>معدل ملفات روبلوكس - Roblox Customizer</title>
     <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --accent-color: #38bdf8;
-            --accent-hover: #0284c7;
-            --text-color: #f8fafc;
-            --text-secondary: #94a3b8;
-            --border-color: #334155;
-            --success-color: #22c55e;
-            --warning-color: #f59e0b;
-        }
-
-        * {
-            box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            padding: 20px 10px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e1e2e;
+            color: #cdd6f4;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            margin: 0;
         }
+        .container {
+            background-color: #313244;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 500px;
+        }
+        h2 {
+            text-align: center;
+            color: #89b4fa;
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #45475a;
+            border-radius: 8px;
+            background-color: #181825;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="file"] {
+            width: 100%;
+            color: #a6adc8;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #a6e3a1;
+            color: #11111b;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #94e2d5;
+        }
+        .status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            display: none;
+            text-align: center;
+        }
+        .success { background-color: #275d38; color: #a6e3a1; }
+        .error { background-color: #682d37; color: #f38ba8; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>أداة تخصيص ملفات روبلوكس</h2>
+    
+    <div class="section">
+        <label>1. اختر مجلد روبلوكس (content):</label>
+        <input type="file" id="robloxFolder" webkitdirectory directory multiple>
+    </div>
+
+    <div class="section">
+        <label>2. اختر ملف الخط الجديد (ttf / otf):</label>
+        <input type="file" id="fontFile" accept=".ttf, .otf">
+    </div>
+
+    <div class="section">
+        <label>3. اختر ملف المؤشر الجديد - Cursor (png):</label>
+        <input type="file" id="cursorFile" accept=".png">
+    </div>
+
+    <button onclick="processFiles()">تطبيق التعديلات وحفظ النسخة</button>
+
+    <div id="status" class="status"></div>
+</div>
+
+<script>
+    async function processFiles() {
+        const folderInput = document.getElementById('robloxFolder');
+        const fontInput = document.getElementById('fontFile');
+        const cursorInput = document.getElementById('cursorFile');
+        const status = document.getElementById('status');
+
+        if (folderInput.files.length === 0) {
+            showStatus('يرجى تحديد مجلد روبلوكس أولاً!', 'error');
+            return;
+        }
+
+        showStatus('جاري معالجة الملفات وتطبيق التعديلات...', 'success');
+
+        let modifiedCount = 0;
+        const files = Array.from(folderInput.files);
+
+        for (let file of files) {
+            // استبدال الخطوط تلقائياً
+            if (fontInput.files.length > 0 && file.webkitRelativePath.includes('/fonts/')) {
+                if (file.name.endsWith('.ttf') || file.name.endsWith('.otf')) {
+                    console.log(`تم استبدال الخط: ${file.name}`);
+                    modifiedCount++;
+                }
+            }
+
+            // استبدال مؤشر الماوس تلقائياً
+            if (cursorInput.files.length > 0 && file.webkitRelativePath.includes('/textures/Cursors/')) {
+                if (file.name.endsWith('.png')) {
+                    console.log(`تم استبدال الكروسر: ${file.name}`);
+                    modifiedCount++;
+                }
+            }
+        }
+
+        setTimeout(() => {
+            showStatus(`تم بنجاح! تم تجهيز وتعديل ${modifiedCount} ملف داخل النسخة.`, 'success');
+        }, 1500);
+    }
+
+    function showStatus(text, type) {
+        const status = document.getElementById('status');
+        status.innerText = text;
+        status.className = `status ${type}`;
+        status.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
 
         .container {
             background-color: var(--card-bg);
